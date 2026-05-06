@@ -2,11 +2,16 @@ package org.phakfasu.konverttopfs
 
 object PhaKfhaSu {
     private val initials = listOf("chh", "ch", "ph", "th", "kh", "ng", "p", "m", "f", "v", "t", "n", "l", "k", "h", "s")
-    
+
+    private const val COMB_CIRCUMFLEX = "̂"
+    private const val COMB_GRAVE = "̀"
+    private const val COMB_ACUTE = "́"
+    private const val COMB_VLINE = "̍"
+
     fun parseInput(s: String): HakkaSyllable? {
         val tone = s.lastOrNull()?.digitToIntOrNull() ?: if (s.endsWith("p") || s.endsWith("t") || s.endsWith("k")) 5 else 1
         val str = if (s.lastOrNull()?.isDigit() == true) s.dropLast(1) else s
-        
+
         var initial = ""
         var rhyme = str
         for (i in initials) {
@@ -16,8 +21,7 @@ object PhaKfhaSu {
                 break
             }
         }
-        
-        // Map to KPPY internal
+
         val internalInitial = when (initial) {
             "p" -> "b"
             "ph" -> "p"
@@ -37,17 +41,17 @@ object PhaKfhaSu {
             "s" -> "s"
             else -> ""
         }
-        
+
         var internalRhyme = rhyme
         internalRhyme = internalRhyme.replace("ṳ", "ii")
         if (internalRhyme.endsWith("p")) internalRhyme = internalRhyme.dropLast(1) + "b"
         if (internalRhyme.endsWith("t")) internalRhyme = internalRhyme.dropLast(1) + "d"
         if (internalRhyme.endsWith("k")) internalRhyme = internalRhyme.dropLast(1) + "g"
-        
+
         return HakkaSyllable(internalInitial, internalRhyme, tone)
     }
 
-    fun renderInput(s: HakkaSyllable): String {
+    fun renderBase(s: HakkaSyllable): String {
         val initial = when (s.initial) {
             "b" -> "p"
             "p" -> "ph"
@@ -59,76 +63,96 @@ object PhaKfhaSu {
             "c" -> "chh"
             else -> s.initial
         }
-        
+
         var rhyme = s.rhyme.replace("ii", "ṳ")
         if (rhyme.endsWith("b")) rhyme = rhyme.dropLast(1) + "p"
         if (rhyme.endsWith("d")) rhyme = rhyme.dropLast(1) + "t"
         if (rhyme.endsWith("g")) rhyme = rhyme.dropLast(1) + "k"
-        
-        return "$initial$rhyme${s.tone}"
+
+        return "$initial$rhyme"
     }
 
+    fun renderInput(s: HakkaSyllable): String = "${renderBase(s)}${s.tone}"
+
     fun parseUnicode(s: String): HakkaSyllable? {
-        var tone = 1
         var str = s
-        
-        if (str.contains("ˆ")) { tone = 2; str = str.replace("ˆ", "") }
-        else if (str.contains("`")) { tone = 3; str = str.replace("`", "") }
-        else if (str.contains("ˊ")) { tone = 4; str = str.replace("ˊ", "") }
-        else if (str.contains("̍")) { tone = 6; str = str.replace("̍", "") }
-        else if (str.contains("â")) { tone = 2; str = str.replace("â", "a") }
-        else if (str.contains("ê")) { tone = 2; str = str.replace("ê", "e") }
-        else if (str.contains("î")) { tone = 2; str = str.replace("î", "i") }
-        else if (str.contains("ô")) { tone = 2; str = str.replace("ô", "o") }
-        else if (str.contains("û")) { tone = 2; str = str.replace("û", "u") }
-        else if (str.contains("à")) { tone = 3; str = str.replace("à", "a") }
-        else if (str.contains("è")) { tone = 3; str = str.replace("è", "e") }
-        else if (str.contains("ì")) { tone = 3; str = str.replace("ì", "i") }
-        else if (str.contains("ò")) { tone = 3; str = str.replace("ò", "o") }
-        else if (str.contains("ù")) { tone = 3; str = str.replace("ù", "u") }
-        else if (str.contains("á")) { tone = 4; str = str.replace("á", "a") }
-        else if (str.contains("é")) { tone = 4; str = str.replace("é", "e") }
-        else if (str.contains("í")) { tone = 4; str = str.replace("í", "i") }
-        else if (str.contains("ó")) { tone = 4; str = str.replace("ó", "o") }
-        else if (str.contains("ú")) { tone = 4; str = str.replace("ú", "u") }
-        else {
-            tone = if (str.endsWith("p") || str.endsWith("t") || str.endsWith("k")) 5 else 1
+        val tone: Int
+
+        when {
+            COMB_VLINE in str -> { tone = 6; str = str.replace(COMB_VLINE, "") }
+            COMB_CIRCUMFLEX in str -> { tone = 2; str = str.replace(COMB_CIRCUMFLEX, "") }
+            COMB_GRAVE in str -> { tone = 3; str = str.replace(COMB_GRAVE, "") }
+            COMB_ACUTE in str -> { tone = 4; str = str.replace(COMB_ACUTE, "") }
+            "â" in str -> { tone = 2; str = str.replace("â", "a") }
+            "ê" in str -> { tone = 2; str = str.replace("ê", "e") }
+            "î" in str -> { tone = 2; str = str.replace("î", "i") }
+            "ô" in str -> { tone = 2; str = str.replace("ô", "o") }
+            "û" in str -> { tone = 2; str = str.replace("û", "u") }
+            "à" in str -> { tone = 3; str = str.replace("à", "a") }
+            "è" in str -> { tone = 3; str = str.replace("è", "e") }
+            "ì" in str -> { tone = 3; str = str.replace("ì", "i") }
+            "ò" in str -> { tone = 3; str = str.replace("ò", "o") }
+            "ù" in str -> { tone = 3; str = str.replace("ù", "u") }
+            "á" in str -> { tone = 4; str = str.replace("á", "a") }
+            "é" in str -> { tone = 4; str = str.replace("é", "e") }
+            "í" in str -> { tone = 4; str = str.replace("í", "i") }
+            "ó" in str -> { tone = 4; str = str.replace("ó", "o") }
+            "ú" in str -> { tone = 4; str = str.replace("ú", "u") }
+            else -> tone = if (str.endsWith("p") || str.endsWith("t") || str.endsWith("k")) 5 else 1
         }
-        
+
         return parseInput(str + tone.toString())
     }
 
     fun renderUnicode(s: HakkaSyllable): String {
-        val base = renderInput(s).dropLast(1)
+        val base = renderBase(s)
         if (s.tone == 1 || s.tone == 5) return base
-        
-        // Very basic tone placement: find first vowel and replace
-        val vowels = listOf("a", "e", "i", "o", "u", "ṳ")
+
+        val vowels = listOf("ṳ", "a", "e", "i", "o", "u")
         var firstVowelIndex = -1
-        for (i in base.indices) {
-            if (vowels.any { base.startsWith(it, i) }) {
-                firstVowelIndex = i
-                break
+        var firstVowelLength = 0
+        outer@ for (i in base.indices) {
+            for (v in vowels) {
+                if (base.startsWith(v, i)) {
+                    firstVowelIndex = i
+                    firstVowelLength = v.length
+                    break@outer
+                }
             }
         }
-        
+
         if (firstVowelIndex == -1) {
-            // For syllabic m or ng
+            // Syllabic m or ng
             if (s.tone == 6) {
-                return base.replace("m", "m̍").replace("ng", "n̍g")
+                return when (base) {
+                    "ng" -> "n${COMB_VLINE}g"
+                    else -> base + COMB_VLINE
+                }
             }
             return base
         }
-        
-        val v = base[firstVowelIndex]
-        val accented = when (s.tone) {
-            2 -> when (v) { 'a' -> "â"; 'e' -> "ê"; 'i' -> "î"; 'o' -> "ô"; 'u' -> "û"; else -> "${v}ˆ" }
-            3 -> when (v) { 'a' -> "à"; 'e' -> "è"; 'i' -> "ì"; 'o' -> "ò"; 'u' -> "ù"; else -> "${v}`" }
-            4 -> when (v) { 'a' -> "á"; 'e' -> "é"; 'i' -> "í"; 'o' -> "ó"; 'u' -> "ú"; else -> "${v}ˊ" }
-            6 -> "${v}̍" // combining vertical line above
-            else -> v.toString()
+
+        val vowel = base.substring(firstVowelIndex, firstVowelIndex + firstVowelLength)
+        val accented = applyTone(vowel, s.tone)
+        return base.substring(0, firstVowelIndex) + accented + base.substring(firstVowelIndex + firstVowelLength)
+    }
+
+    private fun applyTone(vowel: String, tone: Int): String {
+        if (vowel.length == 1 && vowel[0] in "aeiou") {
+            return when (tone) {
+                2 -> when (vowel) { "a" -> "â"; "e" -> "ê"; "i" -> "î"; "o" -> "ô"; "u" -> "û"; else -> vowel }
+                3 -> when (vowel) { "a" -> "à"; "e" -> "è"; "i" -> "ì"; "o" -> "ò"; "u" -> "ù"; else -> vowel }
+                4 -> when (vowel) { "a" -> "á"; "e" -> "é"; "i" -> "í"; "o" -> "ó"; "u" -> "ú"; else -> vowel }
+                6 -> vowel + COMB_VLINE
+                else -> vowel
+            }
         }
-        
-        return base.substring(0, firstVowelIndex) + accented + base.substring(firstVowelIndex + 1)
+        return when (tone) {
+            2 -> vowel + COMB_CIRCUMFLEX
+            3 -> vowel + COMB_GRAVE
+            4 -> vowel + COMB_ACUTE
+            6 -> vowel + COMB_VLINE
+            else -> vowel
+        }
     }
 }

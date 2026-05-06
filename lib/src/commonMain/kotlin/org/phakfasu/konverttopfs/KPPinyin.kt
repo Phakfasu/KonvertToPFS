@@ -28,7 +28,7 @@ object KPPinyin {
         return HakkaSyllable(internalInitial, rhyme, tone)
     }
     
-    fun renderInput(s: HakkaSyllable): String {
+    fun renderBase(s: HakkaSyllable): String {
         // Restore j/q/x if rhyme starts with 'i' but not 'ii'
         val isIVowel = s.rhyme.startsWith("i") && s.rhyme != "ii"
         val initial = when (s.initial) {
@@ -37,8 +37,10 @@ object KPPinyin {
             "s" -> if (isIVowel) "x" else "s"
             else -> s.initial
         }
-        return "$initial${s.rhyme}${s.tone}"
+        return "$initial${s.rhyme}"
     }
+
+    fun renderInput(s: HakkaSyllable): String = "${renderBase(s)}${s.tone}"
 
     fun parseUnicode(s: String): HakkaSyllable? {
         // Map unicode diacritics to tone numbers
@@ -59,7 +61,7 @@ object KPPinyin {
     }
 
     fun renderUnicode(s: HakkaSyllable): String {
-        val base = renderInput(s).dropLast(1)
+        val base = renderBase(s)
         val mark = when (s.tone) {
             1 -> "ˊ"
             2 -> ""
