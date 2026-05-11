@@ -1,6 +1,6 @@
 package org.phakfasu.konverttopfs
 
-// 四縣腔聲調 (Sixian Hakka tones) from two official sources.
+// 四縣腔聲調 (Siyen Hakka tones) from two official sources.
 //
 // MOE source: 教育部《四縣腔聲調表》
 //   調型 uses modifier-letter tone marks appended after the syllable (e.g. oˊ).
@@ -19,10 +19,10 @@ data class ToneInfo(
     val moeValue: String,       // MOE 調值, e.g. "24"
     val pfsNumber: Int,         // PFS tone number (differs for 入聲)
     val pfsMark: String,        // PFS 聲調記號, e.g. "â"
-    val pfsSixianValue: String, // PFS 四縣調值, e.g. "24" or "[44]"
+    val pfsSiyenValue: String,  // PFS 四縣調值, e.g. "24" or "[44]"
 )
 
-object SixianTones {
+object SiyenTones {
     // Internal | 調類 | MOE 調型 | MOE 調值 | PFS 號 | PFS 記號 | PFS 四縣調值
     //    1     | 陰平 |   oˊ    |    24   |   1   |    â    |     24
     //    2     | 陽平 |   oˇ    |    11   |   2   |    à    |     11
