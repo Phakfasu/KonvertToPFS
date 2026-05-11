@@ -1,6 +1,6 @@
 # KonvertToPFS
 
-Kotlin Multiplatform library for converting Hakka Roman Orthography between **KPPY** (Kàu-pō͘ Phin-yîm / 教育部客家語拼音方案) and **PFS** (Pha̍k-fa-sṳ / 白話字), in both input and Unicode modes. Support is currently optimized for the Sixian (四縣腔) dialect.
+Kotlin Multiplatform library for converting Hakka Roman Orthography between **KPPY** (Kàu-pō͘ Phin-yîm / 教育部客家語拼音方案) and **PFS** (Pha̍k-fa-sṳ / 白話字), in both input and Unicode modes. Support is currently optimized for the Siyen (四縣腔) dialect.
 
 ## Features
 
